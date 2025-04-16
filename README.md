@@ -1,6 +1,6 @@
 # flutter_brightness_control
 
-A new Flutter project.
+For save and quick use brightness level.
 
 ## Getting Started
 
