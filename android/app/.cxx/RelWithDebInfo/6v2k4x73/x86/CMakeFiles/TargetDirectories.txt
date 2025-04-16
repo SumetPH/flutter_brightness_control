@@ -1,0 +1,2 @@
+/Users/sumetph/Development/test/flutter_brightness_control/android/app/.cxx/RelWithDebInfo/6v2k4x73/x86/CMakeFiles/edit_cache.dir
+/Users/sumetph/Development/test/flutter_brightness_control/android/app/.cxx/RelWithDebInfo/6v2k4x73/x86/CMakeFiles/rebuild_cache.dir

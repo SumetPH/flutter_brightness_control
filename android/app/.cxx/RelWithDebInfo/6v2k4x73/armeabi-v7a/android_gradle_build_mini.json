@@ -1,0 +1,20 @@
+{
+  "buildFiles": [
+    "/Users/sumetph/Development/fvm/versions/stable/packages/flutter_tools/gradle/src/main/groovy/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/sumetph/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/sumetph/Development/test/flutter_brightness_control/android/app/.cxx/RelWithDebInfo/6v2k4x73/armeabi-v7a",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/sumetph/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/sumetph/Development/test/flutter_brightness_control/android/app/.cxx/RelWithDebInfo/6v2k4x73/armeabi-v7a",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {}
+}
