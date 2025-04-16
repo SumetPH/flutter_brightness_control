@@ -69,6 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {
         brightnessLevels.add(parsedBrightness.toStringAsFixed(3));
         brightnessLevels.sort();
+        brightnessLevels = brightnessLevels.reversed.toList();
       });
 
       final SharedPreferences prefs = await SharedPreferences.getInstance();
