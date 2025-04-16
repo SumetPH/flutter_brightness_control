@@ -34,39 +34,40 @@ class _MyHomePageState extends State<MyHomePage> {
   final _formKey = GlobalKey<FormState>();
   final _textController = TextEditingController();
 
-  double systemBrightness = 0;
+  String systemBrightness = '0';
   List<String> brightnessLevels = [];
 
-  Future<void> getSystemBrightness() async {
+  Future<void> setSystemBrightness(String brightness) async {
     try {
-      double brightness = await ScreenBrightness.instance.system;
-      setState(() {
-        systemBrightness = double.parse(brightness.toStringAsFixed(3));
-      });
-    } catch (e) {
-      throw 'Failed to get system brightness';
-    }
-  }
+      double parsedBrightness = double.parse(brightness);
 
-  Future<void> setSystemBrightness(double brightness) async {
-    try {
-      if (brightness < 0.0 || brightness > 1.0) {
+      if (parsedBrightness < 0.0 || parsedBrightness > 1.0) {
         throw 'Brightness value must be between 0.0 and 1.0';
       }
 
-      await ScreenBrightness.instance.setSystemScreenBrightness(brightness);
+      await ScreenBrightness.instance
+          .setSystemScreenBrightness(parsedBrightness);
+
       setState(() {
-        systemBrightness = brightness;
+        systemBrightness = parsedBrightness.toStringAsFixed(3);
       });
+
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        'systemBrightness',
+        parsedBrightness.toStringAsFixed(3),
+      );
     } catch (e) {
       throw 'Failed to set system brightness';
     }
   }
 
-  addBrightnessLevel(double brightness) async {
+  addBrightnessLevel(String brightness) async {
     try {
+      double parsedBrightness = double.parse(brightness);
+
       setState(() {
-        brightnessLevels.add(brightness.toString());
+        brightnessLevels.add(parsedBrightness.toStringAsFixed(3));
         brightnessLevels.sort();
       });
 
@@ -77,10 +78,10 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  removeBrightnessLevel(double brightness) async {
+  removeBrightnessLevel(String brightness) async {
     try {
       setState(() {
-        brightnessLevels.remove(brightness.toString());
+        brightnessLevels.remove(brightness);
       });
 
       final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -92,15 +93,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
   getBrightnessLevelList() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
+
     setState(() {
       brightnessLevels = prefs.getStringList('brightnessLevels') ?? [];
+      systemBrightness = prefs.getString('systemBrightness') ?? '0';
     });
   }
 
   @override
   void initState() {
     super.initState();
-    getSystemBrightness();
     getBrightnessLevelList();
   }
 
@@ -111,53 +113,61 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text("Brightness Control"),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
-        child: brightnessLevels.isEmpty
-            ? Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Center(
-                    child: Text(
-                      'No Brightness Levels List',
-                      style: TextStyle(
-                          fontSize: 18.0, fontWeight: FontWeight.w500),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+          child: brightnessLevels.isEmpty
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Center(
+                      child: Text(
+                        'No Brightness Levels List',
+                        style: TextStyle(
+                            fontSize: 18.0, fontWeight: FontWeight.w500),
+                      ),
                     ),
-                  ),
-                ],
-              )
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Wrap(
+                  ],
+                )
+              : SingleChildScrollView(
+                  child: Column(
                     spacing: 8.0,
-                    runSpacing: 8.0,
                     children: [
                       ...brightnessLevels.map((level) {
-                        return OutlinedButton(
-                          onPressed: () {
-                            setSystemBrightness(double.parse(level));
-                          },
-                          onLongPress: () {
-                            removeBrightnessLevel(double.parse(level));
-                          },
-                          style: OutlinedButton.styleFrom(
-                            shape: const RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(8.0)),
+                        return Align(
+                          alignment: Alignment.center,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: 400.0,
                             ),
-                            backgroundColor:
-                                systemBrightness == double.parse(level)
-                                    ? Colors.yellow.shade100
-                                    : Colors.white,
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton(
+                                onPressed: () {
+                                  setSystemBrightness(level);
+                                },
+                                onLongPress: () {
+                                  removeBrightnessLevel(level);
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(8.0)),
+                                  ),
+                                  backgroundColor: systemBrightness == level
+                                      ? Colors.yellow.shade100
+                                      : Colors.white,
+                                ),
+                                child: Text(level.toString()),
+                              ),
+                            ),
                           ),
-                          child: Text(level.toString()),
                         );
                       }),
                     ],
                   ),
-                ],
-              ),
+                ),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => showDialog<String>(
@@ -193,7 +203,7 @@ class _MyHomePageState extends State<MyHomePage> {
               TextButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    addBrightnessLevel(double.parse(_textController.text));
+                    addBrightnessLevel(_textController.text);
                     _textController.clear();
                     Navigator.pop(context);
                   }

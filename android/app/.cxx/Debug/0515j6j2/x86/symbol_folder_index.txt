@@ -1,0 +1,1 @@
+/Users/sumetph/Development/github/flutter_brightness_control/build/app/intermediates/cxx/Debug/0515j6j2/obj/x86
